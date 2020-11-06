@@ -36,7 +36,7 @@ func Consumer(inputChannel chan int, stopChannel chan bool)  {
 		outputChannel := make(chan int)
 
 		//I use a separate goroutine in order to remove form my channel all the values that can be divided by the
-		//current number so the next i know for sure that the next value is a prime number.
+		//current number so for the next one is for sure a prime number.
 		go filter(toBeCheckedNum, inputChannel, outputChannel)
 		inputChannel = outputChannel
 	}
