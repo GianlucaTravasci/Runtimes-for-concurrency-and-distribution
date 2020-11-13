@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
 type station struct {
 	id    int
 	name  string
@@ -27,12 +32,31 @@ func fillChannels(travelers [7]traveler, stations [6]station) {
 	}
 }
 
-func scendere(train chan traveler, stazione chan traveler) {
-	//TODO
+func getOff(train chan traveler, stationIn station) {
+	auxChan := make(chan traveler)
+	traveler := <-train
+	if traveler.destination.name == stationIn.name {
+		stationIn.queue <- traveler
+	} else {
+		auxChan <- traveler
+	}
+
+	train = auxChan
 }
 
-func salire(train chan traveler, stazione chan traveler) {
-	//TODO
+func getIn(train chan traveler, stationOff station) {
+	traveler := <-stationOff.queue
+	train <- traveler
+}
+
+func daylySchedule(train chan traveler, stations [6]station) {
+	for {
+		for i := 0; i < len(stations); i++ {
+			getOff(train, stations[i])
+			getIn(train, stations[i])
+			time.Sleep(1 * time.Second)
+		}
+	}
 }
 
 func main() {
@@ -60,7 +84,11 @@ func main() {
 
 	stations := [6]station{Padova, Pordenone, Vicenza, Venezia, Rovigo, Bassano}
 	travelers := [7]traveler{Sergio, Luca, Matteo, Marco, Luciana, Gianni, Caterina}
+	train := make(chan traveler, 3)
 
 	fillChannels(travelers, stations)
 
+	fmt.Println(" Station ID  |  Passengers on Board  |  Passengers in Station ")
+	go daylySchedule(train, stations)
 }
+
