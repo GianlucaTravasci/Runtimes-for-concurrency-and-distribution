@@ -75,3 +75,33 @@ func RoutineViaggiatore(persona *Viaggiatore, stazioni []*Stazione) {
 		persona.partenza, persona.arrivo = persona.arrivo, persona.partenza
 	}
 }
+func RoutineTreno(treno Treno, stazioni []*Stazione) {
+	for {
+		for i := 0; i < len(stazioni); i++ {
+
+			// Assumiamo un tempo di percorrenza media e attendiamo
+			time.Sleep(time.Second * 4)
+			fmt.Printf("%v [TRENO] in arrivo a %v (%d/%d passeggeri) \n", "\033[37m", stazioni[i].nome, len(treno.posti), treno.capienza)
+
+			// Lascia passeggeri alla stazione [i]
+			for j := 0; j < len(treno.posti); j++ {
+				if treno.posti[j].arrivo == stazioni[i].nome {
+					treno.posti[j].notifica <- true
+					treno.posti = append(treno.posti[:j], treno.posti[j+1:]...)
+				}
+			}
+
+			// Prende passeggeri stazione[i]
+		Load:
+			for len(treno.posti) < treno.capienza {
+				select {
+				case person := <-stazioni[i].coda:
+					person.notifica <- true
+					treno.posti = append(treno.posti, person)
+				default:
+					break Load
+				}
+			}
+		}
+	}
+}
