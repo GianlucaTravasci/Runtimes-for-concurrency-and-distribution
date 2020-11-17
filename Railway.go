@@ -1,20 +1,49 @@
+/**
+@Title Railway Station - Exercise
+@authors: Pozzan Paolo, Salvadore Nicola, Sciacco Mariano, Travasci Gianluca
+@Description:
+"
+	Realize a circular line metro service simulator
+
+	M > 1 train stations (along a circular line)
+	N > M commuters who forever revolve around their duty cycle
+	1 commuter train with capacity C < N (no prebooking)
+
+	Commuter duty cycle is the following:
+
+	1. Home --> Nearest train station
+	2. --> Jump on first possible train
+	3. Train --> Work (working..)
+	4. Work --> Nearest train station
+	5. --> Jump on first possible train
+	6. Train --> Home (rest..)
+"
+*/
+
 package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
-type station struct {
-	id    int
-	name  string
-	queue chan traveler
+type Stazione struct {
+	nome string            // Id Stazione
+	coda chan *Viaggiatore // Coda dei viaggiatori in attesa
 }
 
-type traveler struct {
-	id                  int
-	source, destination station
-	delay               int
+type Viaggiatore struct {
+	nome             string    // Nome del viaggiatore
+	partenza, arrivo string    // Nomi delle stazioni di partenza e arrivo
+	attesa           int       // EXTRA: Attesa per lavoro e per casa
+	notifica         chan bool // canale di notifica per salita/discesa
+	colore           string    // EXTRA: solo per il terminale
+}
+
+type Treno struct {
+	capienza int
+	posti    []*Viaggiatore
 }
 
 func fillChannels(travelers [7]traveler, stations [6]station) {
