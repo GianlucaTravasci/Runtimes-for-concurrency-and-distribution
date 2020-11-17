@@ -105,3 +105,60 @@ func RoutineTreno(treno Treno, stazioni []*Stazione) {
 		}
 	}
 }
+func main() {
+
+	// Assumiamo che le stazioni abbiano uno spazio per la coda molto ampio
+	// per il distanziamento sociale (=100)
+
+	// Canali che simulano una coda per le stazioni
+	padovaChannel := make(chan *Viaggiatore, 100)
+	pordenoneChannel := make(chan *Viaggiatore, 100)
+	vicenzaChannel := make(chan *Viaggiatore, 100)
+	veneziaChannel := make(chan *Viaggiatore, 100)
+	rovigoChannel := make(chan *Viaggiatore, 100)
+	bassanoChannel := make(chan *Viaggiatore, 100)
+
+	// Stazioni
+	Padova := Stazione{"Padova", padovaChannel}
+	Pordenone := Stazione{"Pordenone", pordenoneChannel}
+	Vicenza := Stazione{"Vicenza", vicenzaChannel}
+	Venezia := Stazione{"Venezia", veneziaChannel}
+	Rovigo := Stazione{"Rovigo", rovigoChannel}
+	Bassano := Stazione{"Bassano", bassanoChannel}
+
+	// Viaggiatori
+	Sergio := Viaggiatore{"Sergio", "Padova", "Vicenza", 5, make(chan bool), "\033[31m"}
+	Luca := Viaggiatore{"Luca", "Pordenone", "Vicenza", 10, make(chan bool), "\033[32m"}
+	Matteo := Viaggiatore{"Matteo", "Padova", "Bassano", 11, make(chan bool), "\033[33m"}
+	Marco := Viaggiatore{"Marco", "Vicenza", "Venezia", 7, make(chan bool), "\033[34m"}
+	Luciana := Viaggiatore{"Luciana", "Rovigo", "Venezia", 20, make(chan bool), "\033[35m"}
+	Gianni := Viaggiatore{"Gianni", "Venezia", "Pordenone", 3, make(chan bool), "\033[36m"}
+	Caterina := Viaggiatore{"Caterina", "Bassano", "Rovigo", 13, make(chan bool), "\033[40m"}
+
+	// Strutture dati con stazioni e viaggiatori
+	stazioni := []*Stazione{&Padova, &Pordenone, &Vicenza, &Venezia, &Rovigo, &Bassano}
+	viaggiatori := []*Viaggiatore{&Sergio, &Luca, &Matteo, &Marco, &Luciana, &Gianni, &Caterina}
+
+	/* Inizializzo i Viaggiatori come goroutine */
+	for _, viaggiatore := range viaggiatori {
+		go RoutineViaggiatore(viaggiatore, stazioni)
+	}
+
+	// Treno
+	treno := Treno{3, make([]*Viaggiatore, 0, 3)}
+	go RoutineTreno(treno, stazioni)
+
+	/* Caso EXTRA: 2 treni, dove il secondo treno parte dopo 6 secondi */
+	/*
+		time.Sleep(time.Second * 6)
+		treno2 := Treno{2, make([]*Viaggiatore, 0, 2)}
+		go RoutineTreno(treno2, stazioni)
+
+	*/
+
+	// Aspetto all'infinito
+	var wg sync.WaitGroup
+	wg.Add(1)
+	wg.Wait()
+}
+
