@@ -1,5 +1,5 @@
 /**
- * You can find the problem here: https://en.wikipedia.org/wiki/Dining_philosophers_problem
+ * Is possible to find the problem here: https://en.wikipedia.org/wiki/Dining_philosophers_problem
  */
 
 package main
